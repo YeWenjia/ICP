@@ -1,0 +1,20 @@
+open Infra;
+
+-- Extension 6: more language constructs for if-then-else
+type IfElseSig<Exp> = {
+  If: Exp -> Exp -> Exp;
+  IfElse: Exp -> Exp -> Exp -> Exp;
+};
+
+pgIfElse = trait implements IfElseSig<Print&Graph> => {
+  (If cond thn).print = "if (" ++ cond.print ++ ") { " ++ thn.print ++ " }";
+  (IfElse cond thn els).print = "if (" ++ cond.print ++ ") { " ++ thn.print ++ " } else { " ++ els.print ++ " }";
+
+  (If cond thn).graph = addAdj (snk cond) [src thn] >>
+                        mkPair (src cond) (snk thn);
+  (IfElse cond thn els).graph = let phi = ref (newNode "<Phi>" [] []) in
+                                addAdj (snk cond) [src thn; src els] >>
+                                addAdj (snk thn) [phi] >>
+                                addAdj (snk els) [phi] >>
+                                mkPair (src cond) phi;
+};

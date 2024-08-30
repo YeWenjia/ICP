@@ -1,0 +1,12 @@
+open Infra;
+
+-- Extension 3: CFG construction for the initial language
+graphSeq = trait implements SeqSig<Print => Graph> => {
+  [self]@(Var   x).graph = let r = ref (newNode self.print [] [x]) in
+                           mkPair r r;
+  [self]@(Ass x e).graph = let r = ref (newNode self.print [x] []) in
+                           addAdj (snk e) [r] >>
+                           mkPair (src e) r;
+       (Seq e1 e2).graph = addAdj (snk e1) [src e2] >>
+                           mkPair (src e1) (snk e2);
+};

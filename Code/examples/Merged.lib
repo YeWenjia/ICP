@@ -1,0 +1,10 @@
+open PrintSeq;
+open PrintBool;
+open PrintLoop;
+open GraphSeq;
+open GraphBoolLoop;
+open ExtensionInt;
+open ExtensionIfElse;
+
+type ProgSig<Exp> = SeqSig<Exp> & BoolSig<Exp> & LoopSig<Exp> & IntSig<Exp> & IfElseSig<Exp>;
+merged: ProgSig<Print&Graph> = new printSeq , printBool , printLoop , graphSeq , graphBoolLoop , pgInt , pgIfElse;

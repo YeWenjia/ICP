@@ -1,0 +1,18 @@
+open Infra;
+
+-- Extension 4: CFG construction for Booleans and while-loops
+graphBoolLoop = trait implements BoolSig<Print => Graph> & LoopSig<Graph> => {
+  [self]@(BoolLit b).graph = let r = ref (newNode self.print [] []) in
+                             mkPair r r;
+  (Not     e).graph = e.graph;
+  (And e1 e2).graph = addAdj (snk e1) [src e2] >>
+                      mkPair (src e1) (snk e2);
+  (Or  e1 e2).graph = addAdj (snk e1) [src e2] >>
+                      mkPair (src e1) (snk e2);
+  (WhileDo cond body).graph = addAdj (snk cond) [src body] >>
+                              addAdj (snk body) [src cond] >>
+                              mkPair (src cond) (snk cond);
+  (DoWhile body cond).graph = addAdj (snk body) [src cond] >>
+                              addAdj (snk cond) [src body] >>
+                              mkPair (src body) (snk cond);
+};

@@ -1,0 +1,68 @@
+-- Infrastructure --
+
+interface Node {  -- iso-recursive type
+  name: String;
+  adj: Ref [Ref Node];  -- adjacency array
+  def: [String];        -- variables defined
+  use: [String];        -- variables used
+  IN:  Ref [String];    -- for live-variable analysis
+  OUT: Ref [String];    -- for live-variable analysis
+};
+
+newNode (s: String) (def: [String]) (use: [String]) = fold @Node {
+  name = s;
+  adj = ref ([] : [Ref Node]);
+  def = def;
+  use = use;
+  IN  = ref ([] : [String]);
+  OUT = ref ([] : [String]);
+};
+
+addAdj (x: Ref Node) (ys: [Ref Node]) = !x.adj := !(!x.adj) ++ ys;
+
+
+-- Visited set to avoid infinite loops on cyclic graphs --
+
+visited = ref ([] : [Ref Node]);
+
+clearVisited (_: Top) = visited := [];
+
+isVisited (x: Ref Node) =
+  letrec go (i: Int): Bool =
+    if i == #(!visited) then false
+    else if (!visited)!!i == x then true
+    else go (i+1) in
+  go 0;
+
+
+-- Type declarations for CFG and pretty-printing
+
+type PairRefNode = [Ref Node];
+mkPair (x: Ref Node) (y: Ref Node) = [x; y];
+
+type Graph = { graph: PairRefNode };  -- (src, snk)
+src (e: Graph) = e.graph !! 0;
+snk (e: Graph) = e.graph !! 1;
+
+type Print = { print: String };
+
+
+-- Compositional interfaces --
+
+type SeqSig<Exp> = {  -- 1st group of constructors
+  Var: String -> Exp;
+  Ass: String -> Exp -> Exp;
+  Seq: Exp -> Exp -> Exp;
+};
+
+type BoolSig<Exp> = {  -- 2nd group of constructors
+  BoolLit: Bool -> Exp;
+  Not: Exp -> Exp;
+  And: Exp -> Exp -> Exp;
+  Or: Exp -> Exp -> Exp;
+};
+
+type LoopSig<Exp> = {  -- 3rd group of constructors
+  WhileDo: Exp -> Exp -> Exp;
+  DoWhile: Exp -> Exp -> Exp;
+};

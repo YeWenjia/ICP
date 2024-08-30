@@ -1,0 +1,7 @@
+open Infra;
+
+-- Extension 2: pretty-printing for while-loops
+printLoop = trait implements LoopSig<Print> => {
+  (WhileDo cond body).print = "while (" ++ cond.print ++ ") do { " ++ body.print ++ " }";
+  (DoWhile body cond).print = "do { " ++ body.print ++ " } while (" ++ cond.print ++ ")";
+};

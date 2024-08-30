@@ -1,0 +1,25 @@
+-- Set operations on arrays --
+
+elem (s: String) (a: [String]) =
+  letrec go (i : Int) : Bool =
+    if i == #a then false
+    else if a!!i == s then true
+    else go (i+1) in
+  go 0;
+
+filter (p: String -> Bool) (a: [String]) =
+  letrec go (i: Int): [String] =
+    if i == #a then []
+    else (let x = a!!i in if p x then [x] else []) ++ go (i+1) in
+  go 0;
+
+not (b: Bool) = if b then false else true;
+
+difference (a: [String]) (b: [String]) =
+  filter (\(x: String) -> not (elem x b)) a;
+
+union (a: [String]) (b: [String]) = a ++ difference b a;
+
+subset (a: [String]) (b: [String]) = #(difference a b) == 0;
+
+equal (a: [String]) (b: [String]) = subset a b && subset b a;

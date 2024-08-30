@@ -1,0 +1,8 @@
+open Infra;
+
+-- Initial set-up: pretty-printing for a minimal imperative language
+printSeq = trait implements SeqSig<Print> => {
+  (Var     x).print = x;
+  (Ass   x e).print = x ++ " = " ++ e.print;
+  (Seq e1 e2).print = e1.print ++ "; " ++ e2.print;
+};

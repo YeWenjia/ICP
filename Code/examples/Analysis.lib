@@ -1,0 +1,50 @@
+open Set;
+open Infra;
+
+-- Core algorithm for live-variable analysis --
+
+analyze (x: Ref Node) (changed: Ref Bool): () = if isVisited x then () else
+  visited := !visited ++ [x] >>
+  letrec go (i: Int): [String] =
+    let adj = !(!x.adj) in
+    if i == #adj then [] else analyze (adj!!i) changed >>
+                              union !(!(adj!!i).IN) (go (i+1)) in
+  !x.OUT := go 0 >>
+  let oldIN = !(!x.IN) in
+  !x.IN := union !x.use (difference !(!x.OUT) !x.def) >>
+  if equal oldIN !(!x.IN) then () else changed := true;
+
+analyzeLiveVar (prog: Graph): () =
+  let changed = ref true in
+  letrec go (_: ()): () = 
+    if !changed then changed := false >>
+                     clearVisited () >>
+                     analyze (src prog) changed >>
+                     go ()
+    else () in
+  go ();
+
+
+-- Traversing the CFG to show the live variables --
+
+show (a: [String]) =
+  letrec go (i: Int): String =
+    if i == #a then ""
+    else a!!i ++ "; " ++ go (i+1) in
+  "[ " ++ go 0 ++ "]";
+
+repeat (l: Int) (s: String) =
+  letrec go (i: Int): String =
+    if i == l then "" else s ++ go (i+1) in
+  go 0;
+
+traverse (x: Ref Node) (l: Int): String = if isVisited x then "" else
+  visited := !visited ++ [x] >>
+  let adj = !(!x.adj) in
+  letrec go (i: Int): String =
+    if i == #adj then "" else traverse (adj!!i) (l+1) ++ go (i+1) in
+  repeat l " " ++ !x.name ++ ": " ++ show !(!x.IN) ++ "\n" ++ go 0;
+
+traverseGraph (prog: Graph) =
+  clearVisited () >>
+  traverse (src prog) 0;

@@ -1,0 +1,25 @@
+open Infra;
+
+-- Extension 5: more language constructs for integers
+type IntSig<Exp> = {
+  IntLit: Int -> Exp;
+  Add: Exp -> Exp -> Exp;
+  Sub: Exp -> Exp -> Exp;
+  Less: Exp -> Exp -> Exp;
+};
+
+pgInt = trait implements IntSig<Print&Graph> => {
+  (IntLit   i).print = toString i;
+  (Add  e1 e2).print = "(" ++ e1.print ++ " + " ++ e2.print ++ ")";
+  (Sub  e1 e2).print = "(" ++ e1.print ++ " - " ++ e2.print ++ ")";
+  (Less e1 e2).print = "(" ++ e1.print ++ " < " ++ e2.print ++ ")";
+
+  [self]@(IntLit i).graph = let r = ref (newNode self.print [] []) in
+                            mkPair r r;
+  (Add  e1 e2).graph = addAdj (snk e1) [src e2] >>
+                       mkPair (src e1) (snk e2);
+  (Sub  e1 e2).graph = addAdj (snk e1) [src e2] >>
+                       mkPair (src e1) (snk e2);
+  (Less e1 e2).graph = addAdj (snk e1) [src e2] >>
+                       mkPair (src e1) (snk e2);
+};

@@ -1,0 +1,9 @@
+open Infra;
+
+-- Extension 1: pretty-printing for Booleans
+printBool = trait implements BoolSig<Print> => {
+  (BoolLit b).print = toString b;
+  (Not     e).print = "not " ++ e.print;
+  (And e1 e2).print = "(" ++ e1.print ++ " and " ++ e2.print ++ ")";
+  (Or  e1 e2).print = "(" ++ e1.print ++ " or " ++ e2.print ++ ")";
+};
