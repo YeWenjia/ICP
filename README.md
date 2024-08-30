@@ -5,6 +5,7 @@
 
 1. **Proof** contains the Coq formalizations of the $\lambda_{im}$ and $F_{im}^+$ calculi.
 2. **Code** contains the implementation of the CP compiler extended with support for imperative features.
+   You can check <https://github.com/yzyzsun/CP-next> for the up-to-date version.
 
 Both parts can either be evaluated in the pre-built Docker images (with all the dependencies installed) or built from scratch.
 
